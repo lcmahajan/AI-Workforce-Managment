@@ -21,6 +21,7 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const { toast } = useToast();
+
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +43,7 @@ export default function Login() {
       });
       setLocation("/");
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err?.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +63,7 @@ export default function Login() {
       title: "Reset Link Sent",
       description: "Password reset link has been sent to your email",
     });
+
     setShowForgotPassword(false);
     setResetEmail("");
   };
@@ -73,8 +75,9 @@ export default function Login() {
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
+
           <div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               AI Workforce Optimization Platform
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
@@ -91,10 +94,9 @@ export default function Login() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {/* Email / Username */}
             <div className="space-y-2">
-              <Label htmlFor="usernameOrEmail" className="text-sm font-medium">
-                Email or Username
-              </Label>
+              <Label htmlFor="usernameOrEmail">Email or Username</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -105,15 +107,13 @@ export default function Login() {
                   onChange={(e) => setUsernameOrEmail(e.target.value)}
                   className="pl-10"
                   required
-                  data-testid="input-username-email"
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -124,104 +124,90 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
-                  data-testid="input-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  data-testid="button-toggle-password"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
 
+            {/* Forgot Password */}
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                aria-label="Open forgot password dialog"
-                data-testid="button-forgot-password"
+                className="text-sm text-white font-medium hover:underline"
               >
                 Forgot Password?
               </button>
             </div>
 
+            {/* Login Button */}
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={isLoading}
-              data-testid="button-login"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
             >
               {isLoading ? "Signing in..." : "Login"}
             </Button>
 
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-muted-foreground">New User?</span>
-              </div>
-            </div>
+            {/* Divider */}
+            <div className="my-6 text-center">
+              <span className="text-sm font-bold text-white">
+                New User?
+                </span> 
+                </div>
 
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">Don't have an account?</p>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => setLocation("/register")}
-                data-testid="button-register"
-              >
-                Create Account
-              </Button>
-            </div>
+            {/* Register Button */}
+            <Button
+  type="button"
+  onClick={() => setLocation("/register")}
+  data-testid="button-register"
+  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold shadow-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+>
+  Create Account
+</Button>
           </form>
         </CardContent>
       </Card>
 
+      {/* Forgot Password Dialog */}
       <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
-        <DialogContent data-testid="dialog-forgot-password">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Reset Password</DialogTitle>
             <DialogDescription>
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a reset link.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="resetEmail">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="resetEmail"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-reset-email"
-                />
-              </div>
+            <Label htmlFor="resetEmail">Email Address</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                id="resetEmail"
+                type="email"
+                placeholder="Enter your email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
+
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setShowForgotPassword(false)}
-              data-testid="button-cancel-reset"
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleForgotPassword}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              data-testid="button-send-reset"
-            >
+            <Button onClick={handleForgotPassword}>
               Send Reset Link
             </Button>
           </DialogFooter>
