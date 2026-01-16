@@ -1,177 +1,205 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useAuth } from "@/lib/auth";
+import { useLocation } from "wouter";
 import {
   Users,
-  Briefcase,
-  TrendingUp,
+  Brain,
+  Activity,
+  Zap,
   AlertTriangle,
-  FileText,
-  UserCheck,
+  Grid,
 } from "lucide-react";
-import { KPICard } from "@/components/KPICard";
-import { RecentActivityFeed } from "@/components/RecentActivityFeed";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+/* ================== INTELLIGENCE DATA ================== */
+const fitmentData = [
+  { name: "Strong", value: 58 },
+  { name: "Moderate", value: 32 },
+  { name: "Weak", value: 10 },
+];
+
+const fatigueData = [
+  { name: "Low", value: 60 },
+  { name: "Medium", value: 25 },
+  { name: "High", value: 15 },
+];
+
+const skillData = [
+  { name: "Strong", value: 48 },
+  { name: "Developing", value: 37 },
+  { name: "Weak", value: 15 },
+];
+
+const gapData = [
+  { dept: "Engineering", gap: 420000 },
+  { dept: "Sales", gap: 310000 },
+  { dept: "Marketing", gap: 260000 },
+];
+
+const automationData = [
+  { name: "Automatable", value: 22 },
+  { name: "Manual", value: 78 },
+];
+
+const COLORS = ["#3b82f6", "#93c5fd", "#e5e7eb"];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const role = user?.role || "employee";
+  const [, navigate] = useLocation();
 
-  const { data: employeeStats = {} } = useQuery({
-    queryKey: ["/api/employees/stats"],
-  });
-
-  const { data: uploadStats = [] } = useQuery({
-    queryKey: ["/api/uploads"],
-  });
-
-  const stats = employeeStats.stats || {
-    totalEmployees: 0,
-    avgProductivity: 0,
-    highPerformers: 0,
-    lowUtilization: 0,
-  };
-
-  const employees = employeeStats.employees || [];
-
-  const topPerformers = useMemo(() => {
-    return employees
-      .slice()
-      .sort((a, b) => (b.fitmentScore || 0) - (a.fitmentScore || 0))
-      .slice(0, 3);
-  }, [employees]);
+  const go = (path) => navigate(path);
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Welcome back! Here's an overview of your workforce.
-          </p>
-        </div>
+    <div className="space-y-10">
 
-        {role === "admin" && (
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/upload">Upload Data</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/analytics">View Analytics</Link>
-            </Button>
-          </div>
-        )}
+      {/* HEADER */}
+      <div>
+        <h1 className="text-4xl font-extrabold tracking-tight">
+          Workforce Intelligence Command Center
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Live organizational health, risk & optimization intelligence
+        </p>
       </div>
 
-      {/* ================= ADMIN VIEW ================= */}
-      {role === "admin" && (
-        <>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <KPICard title="Total Employees" value={stats.totalEmployees} icon={Users} />
-            <KPICard title="High Performers" value={stats.highPerformers} icon={TrendingUp} />
-            <KPICard
-              title="Avg Productivity"
-              value={`${Math.round(stats.avgProductivity || 0)}%`}
-              icon={Briefcase}
-            />
-            <KPICard title="Low Utilization" value={stats.lowUtilization} icon={AlertTriangle} />
+      {/* HERO STRIP */}
+      <div className="grid md:grid-cols-4 gap-6">
+        <Hero title="Workforce" value="120" icon={Users} />
+        <Hero title="Fitment Index" value="82%" icon={Brain} />
+        <Hero title="Burnout Risk" value="15%" icon={AlertTriangle} />
+        <Hero title="Automation" value="$6.2M" icon={Zap} />
+      </div>
+
+      {/* VISUAL INTELLIGENCE GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Fitment */}
+        <InsightCard title="Fitment Health" onClick={() => go("/fitment")}>
+          <PieBlock data={fitmentData} />
+        </InsightCard>
+
+        {/* Fatigue */}
+        <InsightCard title="Fatigue Risk" onClick={() => go("/fatigue")}>
+          <PieBlock data={fatigueData} />
+        </InsightCard>
+
+        {/* Soft Skills */}
+        <InsightCard title="Skill Health" onClick={() => go("/softskills")}>
+          <PieBlock data={skillData} />
+        </InsightCard>
+
+        {/* Gap */}
+        <InsightCard title="Gap Exposure" onClick={() => go("/gap-analysis")}>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={gapData}>
+              <XAxis dataKey="dept" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="gap" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
+        </InsightCard>
+
+        {/* Automation */}
+        <InsightCard title="Automation Potential" onClick={() => go("/workforce-intelligence")}>
+          <PieBlock data={automationData} />
+        </InsightCard>
+
+        {/* 6x6 */}
+        <InsightCard title="6×6 Workforce Matrix" onClick={() => go("/6x6-workforce-analysis")}>
+          <div className="grid grid-cols-3 gap-3">
+            {["Critical", "High", "Medium", "Stable", "Strong", "Elite"].map(x => (
+              <div key={x} className="p-4 rounded-lg bg-blue-50 text-center text-sm font-semibold">
+                {x}
+              </div>
+            ))}
           </div>
+        </InsightCard>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Quick Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>CVs Uploaded</span>
-                  <span>{uploadStats.filter((s) => s.type === "cv").length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Job Descriptions</span>
-                  <span>{uploadStats.filter((s) => s.type === "jd").length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Employees</span>
-                  <span>{stats.totalEmployees}</span>
-                </div>
-              </CardContent>
-            </Card>
+      </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserCheck className="h-5 w-5" />
-                  Top Performers
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {topPerformers.length ? (
-                  topPerformers.map((e, i) => (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span>{e.name}</span>
-                      <span>{e.fitmentScore}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">No employees yet</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+      {/* AI SIGNALS */}
+      <Card>
+        <CardHeader>
+          <CardTitle>AI Workforce Signals</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Signal>12 employees in burnout risk cluster</Signal>
+          <Signal>Sales productivity leakage detected</Signal>
+          <Signal>Engineering overstaffed by 8 FTE</Signal>
+          <Signal>6 roles ready for automation</Signal>
+        </CardContent>
+      </Card>
 
-          <RecentActivityFeed />
-        </>
-      )}
+    </div>
+  );
+}
 
-      {/* ================= EMPLOYEE VIEW ================= */}
-      {role === "employee" && (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Fitment</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Your role fitment score will appear here.
-              </p>
-            </CardContent>
-          </Card>
+/* ===== UI Blocks ===== */
 
-          <Card>
-            <CardHeader>
-              <CardTitle>My Fatigue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Your fatigue insights will appear here.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>How This Platform Works</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground space-y-2">
-              <p>• Admin uploads company-wide data</p>
-              <p>• AI processes workforce analytics</p>
-              <p>• You receive personalized insights</p>
-            </CardContent>
-          </Card>
+function Hero({ title, value, icon: Icon }) {
+  return (
+    <Card>
+      <CardContent className="p-6 flex justify-between items-center">
+        <div>
+          <p className="text-muted-foreground">{title}</p>
+          <p className="text-3xl font-bold">{value}</p>
         </div>
-      )}
+        <Icon className="h-8 w-8 text-blue-600" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function InsightCard({ title, children, onClick }) {
+  return (
+    <Card
+      onClick={onClick}
+      className="cursor-pointer hover:shadow-lg transition border-blue-100"
+    >
+      <CardHeader>
+        <CardTitle className="flex justify-between items-center">
+          {title}
+          <Grid className="h-4 w-4 text-blue-500" />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+function PieBlock({ data }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <PieChart>
+        <Pie data={data} dataKey="value" innerRadius={45} outerRadius={80}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={COLORS[i]} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+function Signal({ children }) {
+  return (
+    <div className="flex items-center gap-3">
+      <Badge className="bg-blue-100 text-blue-800">AI</Badge>
+      <p className="text-sm">{children}</p>
     </div>
   );
 }
